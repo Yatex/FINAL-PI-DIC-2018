@@ -39,9 +39,9 @@ main(void)
 				printf("No enough memory to continue");
 			case 2:
 				printf("");                             //    ESTO        
-			case 3:                                   //    SERIA
+			case 3:                                         //    SERIA
 				printf("");                             //    FRONT 
-			case 4:                                   //      -
+			case 4:                                         //      -
 				printf("");                             //     END
 			case 5:
 				printf("");
