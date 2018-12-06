@@ -23,7 +23,11 @@ typedef struct airportCDT{
     struct airportNode* iterator;
 }airportCDT;
 
-
+typedef struct airpData{
+    char oaci[Max_Oaci];
+    char denomination[Max_Deno];
+    char province[Max_Prov];
+}airportFormat;
 
 
 
