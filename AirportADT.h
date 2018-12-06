@@ -15,11 +15,7 @@
 
 #include <stdio.h>
 
-typedef struct airpData{
-    char oaci[Max_Oaci];
-    char denomination[Max_Deno];
-    char province[Max_Prov];
-}airportFormat;
+
 
 typedef struct airportCDT* airportADT;
 
