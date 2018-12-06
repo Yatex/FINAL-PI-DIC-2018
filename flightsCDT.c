@@ -28,7 +28,24 @@ typedef struct flightsCDT{
 
 typedef flightNode * fNode;
 
+typedef struct flightsCDT* flightsADT;
 
+typedef struct date{
+    unsigned day;
+    unsigned month;
+    unsigned year;
+}dateType;
+
+typedef struct flight{
+    dateType fecha;
+    char *clase;
+    char *clasificacion
+    char *tipo
+    char *origenOaci
+    char *destinoOaci
+    char *nombre
+    int diaSemana;
+}flightFormat;
 
 
 void checkOaci(char oaci[]){
