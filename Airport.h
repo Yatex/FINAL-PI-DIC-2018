@@ -4,9 +4,15 @@
 #define Max_Deno 70
 #define Max_Prov 19
 
-typedef struct airportNode* airNode;
+#define MAX_CAMPOS 3
+#define MAX_SIZE 150
+#define FALSE 0
+#define TRUE !FALSE
+#define OACI 1
+#define DENOMINATION 4
+#define PROVINCE 21
 
-typedef struct airportCDT* airportADT;
+typedef struct airportNode* airNode;
 
 typedef struct airportFormat{
 	char oaci[Max_Oaci];
@@ -14,21 +20,13 @@ typedef struct airportFormat{
 	char province[Max_Prov];
 }airportFormat;
 
-typedef struct airportNode{
-	airportFormat data;
-	airNode next;
-}airportNode;
-
-typedef struct airportCDT{
-	airNode first;
-	airNode iterator;
-}airportCDT;
+typedef struct airportCDT* airportADT;
 
 airportADT newAirport(void);
 
 airportFormat newAirportFormat(void);
 
-int insertAirport(airportADT airports,char* data,int errorAdding);
+int insertAirport(airportADT airports,char* data,int* errorAdding);
 
 void freeAirports(airportADT airports);
 
