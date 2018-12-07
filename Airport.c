@@ -4,6 +4,7 @@
 #include <string.h>
 
 
+
 typedef struct airportNode{
     airportFormat data;
     airNode next;
@@ -16,22 +17,17 @@ typedef struct airportCDT{
 
 
 airportADT newAirport(){
-	return calloc(1,sizeof(airportCDT));
+	airportADT newAir = calloc(1,sizeof(airportCDT));
+    return newAir;
 }
 
-/*airportFormat newAirportFormat(){
-    return calloc(1, sizeof(formNode));
-
- }
- */
 
 static airNode insertAirportRec(airNode first, airportFormat elem, int* errorAdding){
-	int result=0;
-	if (first == NULL || (result == strcmp(first->data.oaci,elem.oaci)) > 0) {
+	if (first == NULL || strcmp(elem.oaci,first->data.oaci) < 0) {
 		airNode newNode = malloc(sizeof(airportNode));
 		if (newNode == NULL) {
 			(*errorAdding)=1;
-			return NULL;
+			return first;
 		}
 		newNode->data = elem;
 		newNode->next= first;
@@ -41,13 +37,13 @@ static airNode insertAirportRec(airNode first, airportFormat elem, int* errorAdd
 	first->next = insertAirportRec(first->next,elem,errorAdding);
 	return first;
 }
-
-airportFormat intoAirportFormat(char * data){
+/*
+void intoAirportFormat(char * data){
 	char dataMatriz[MAX_CAMPOS][MAX_SIZE];
 	int i=0;
 	int j=0;
 	char* token = strtok(data,";");
-	while(token != NULL){
+	while(token != NULL || i < 22){
 		if (i==OACI || i==DENOMINATION || i==PROVINCE) {
 			strcpy(dataMatriz[j],token);
 			j++;
@@ -55,31 +51,52 @@ airportFormat intoAirportFormat(char * data){
 		token = strtok(NULL,";");
 		i++;
 	}
-    airportFormat newAirport; /*= newAirportFormat();*/
-	strcpy(newAirport.oaci,dataMatriz[0]);
-	strcpy(newAirport.denomination,dataMatriz[1]);
-	strcpy(newAirport.province,dataMatriz[2]);
-	return newAirport;   
+    
+	strncpy(newAir.oaci,dataMatriz[0],Max_Oaci);
+	strncpy(newAir.denomination,dataMatriz[1],Max_Deno);
+	strncpy(newAir.province,dataMatriz[2],Max_Prov);
 }
+*/
 
 int insertAirport(airportADT airports, char * data, int* errorAdding){
-	airportFormat elem = intoAirportFormat(data);
-	if (*(elem.oaci)!= 0) {
-		airports->first = insertAirportRec(airports->first,elem, errorAdding);
+    char dataMatriz[MAX_CAMPOS][MAX_SIZE];
+    int i=0;
+    int j=0;
+    char* token;
+    token = strtok(data,";");
+    while(token != NULL){
+        if (i==OACI || i==DENOMINATION || i==PROVINCE) {
+            strcpy(dataMatriz[j],token);
+            j++;
+        }
+        token = strtok(NULL,";");
+        i++;
+    }
+    airportFormat newAir;
+    strncpy(newAir.oaci,dataMatriz[0],Max_Oaci);
+    strncpy(newAir.denomination,dataMatriz[1],Max_Deno);
+    strncpy(newAir.province,dataMatriz[2],Max_Prov);
+    
+	if (*(newAir.oaci) != 0) {
+		airports->first = insertAirportRec(airports->first,newAir, errorAdding);
 		return 1;
 	}
 	return 0;
 }
 
-void freeAirports(airportADT airports){
-	airNode current = airports->first;
-	airNode aux;
-	while(current != NULL){
-		aux = current->next;
-		free(current);
-		current = aux;
-	}
-	free(airports);
+
+void freeAirports( airportADT airports )
+{
+    airNode aux;
+    toBeginAirport(airports);
+    
+    while(hasNextAirport(airports))
+    {
+        aux = airports->iterator;
+        nextAirport(airports);
+        free(aux);
+    }
+    free(airports);
 }
 
 void toBeginAirport(airportADT airports){
