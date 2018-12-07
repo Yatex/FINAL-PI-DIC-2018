@@ -40,4 +40,4 @@ int hasNextAirport(airportADT airports);
 
 airportFormat nextAirport(airportADT airports);
 
-#endif /* AirportADT_h */
+#endif /* Airport_h */
