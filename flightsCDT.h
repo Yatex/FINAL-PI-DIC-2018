@@ -57,4 +57,4 @@ fNode intoFlightFormat( char* data, int* errorAdding);
 
 int getTypeComp( flightFormat elem);
 
-#endif /* flightsCDT_h */
+#endif /* flights_h */
