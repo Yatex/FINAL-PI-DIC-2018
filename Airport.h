@@ -28,7 +28,7 @@ airportADT newAirport(void);
 
 airportFormat newAirportFormat(void);
 
-int insertAirport(airportADT airports,char* data,int* errorAdding);
+int insertAirport(airportADT airports,char* data,int errorAdding);
 
 void freeAirports(airportADT airports);
 
