@@ -1,56 +1,24 @@
 #include "Flights.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
-#define FECHA 0
-#define CLASEDEVUELO 2
-#define CLASIFICACION 3
-#define TIPODEMOV 4
-#define ORIGENOACI 5
-#define DESTOACI 6
-#define AERONAME 7
 
-typedef struct flightNode{
-	flightFormat data;
-	struct flightNode * next;
-}flightNode;
 
-typedef struct flightsCDT{
-	int week[7][2];
-	int composition[6];
-	flightNode * first;
-	flightNode * iterator;
-}flightsCDT;
 
-typedef struct date{
-	unsigned day;
-	unsigned month;
-	unsigned year;
-}dateType;
 
-typedef struct flight{
-	dateType fecha;
-	char *clase;
-	char *clasificacion;
-	char *tipo;
-	char *origenOaci;
-	char *destinoOaci;
-	char *nombre;
-}flightFormat;
 
 flightsADT newFlights(void){
 	return calloc(1, sizeof(flightsCDT));
+    
 }
 
-fNode newFlight(void){
+/*flightFormat newFlight(void){
 	flightNode nodo = calloc(1, sizeof(flightNode));
 	nodo.data = calloc(1, sizeof(flightFormat));
 	return nodo;
 }
+*/
 
 void checkOaci(char oaci[]){
-	for (int i =0; oaci[i] != NULL; i++) {
+	for (int i =0; oaci[i] != '\0'; i++) {
 		if (isdigit(oaci[i]) || i > MAX_OACI) {
 			strcpy(oaci,"N/A");
 			return;
@@ -61,7 +29,7 @@ void checkOaci(char oaci[]){
 int
 dateToDay(dateType date) //returns 0 if date provided is a monday, 1 if tuesday, untill 6 sunday
 {
-	int d=date->day, m=date->month, y=date->year, count=0;
+	int d=date.day, m=date.month, y=date.year, count=0;
 	int month[]={31,28,31,30,31,30,31,31,30,31,30,31};
 	for (size_t i = 0; i < m-1; i++)
 	{
@@ -84,18 +52,18 @@ char* addIfSpace( char* data, int * spaceError )
 	return aux;
 }
 
-static void freeFlightData( flightFormat flight )
-{
-	free(flight.fecha);
+/*static void freeFlightData( flightFormat flight )
+
 	free(flight.clase);
-	free(flight.clasification);
+	free(flight.clasificacion);
 	free(flight.tipo);
 	free(flight.origenOaci);
 	free(flight.destinoOaci);
 	free(flight.nombre);
 }
+ */
 
-fNode intoFlightFormat(char* data, int *errorAdding){
+flightFormat intoFlightFormat(char* data, int *errorAdding){
 	char dataMatriz[MAX_CAMPOS_F][MAX_SIZE_F];
 	int i=0;
 	int j=0;
@@ -108,47 +76,53 @@ fNode intoFlightFormat(char* data, int *errorAdding){
 		token = strtok(NULL,";");
 		i++;
 	}
-	fNode newFlight = newFlight(void);
+    flightFormat newFlight; /*= newFlight(void);*/
 	int spaceError;
 	(*errorAdding) = 0;
 	char * intoData = dataMatriz[FECHA];
 	dateType date;
 	date.day = atoi(strtok(intoData,"/"));
-	data.month = atoi(strtok(intoData,"/"));
-	data.year = atoi(strtok(intoData,"/"));
+	date.month = atoi(strtok(intoData,"/"));
+	date.year = atoi(strtok(intoData,"/"));
 	newFlight.fecha=date;
-	newFlight.clase = addIfSpace(dataMatriz[CLASEVUELO],&spaceError);
+	newFlight.clase = addIfSpace(dataMatriz[1],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
-	newFlight.clasificacion = addIfSpace(dataMatriz[CLASIFICACION],&spaceError);
+	newFlight.clasificacion = addIfSpace(dataMatriz[2],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
-	newFlight.tipo = addIfSpace(dataMatriz[TIPODEMOV],&spaceError);
+	newFlight.tipo = addIfSpace(dataMatriz[3],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
-	newFlight.origenOaci = addIfSpace(dataMatriz[ORIGENOACI],&spaceError);
+	newFlight.origenOaci = addIfSpace(dataMatriz[4],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
 	checkOaci(dataMatriz[DESTOACI]);
-	newFlight.destinoOaci = addIfSpace(dataMatriz[DESTOACI],&spaceError);
+	newFlight.destinoOaci = addIfSpace(dataMatriz[5],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
-	newFlight.nombre = addIfSpace(dataMatriz[AERONAME],&spaceError);
+	newFlight.nombre = addIfSpace(dataMatriz[6],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
+    
 	return newFlight;
 }
 
-int insertFlights(flightsADT flights, char* data, int * errorAdding){
-	flightFormat elem = calloc(1,sizeof(flightFormat));
+int insertFlight(flightsADT flights, char* data, int * errorAdding){
+	flightFormat elem /*= calloc(1,sizeof(flightFormat))*/;
 	elem = intoFlightFormat(data,errorAdding);
 	if ((*errorAdding)==1) {
 		return 1;
 	}
-	fnode newNode = malloc(sizeof(flightNode));
+	fNode newNode = malloc(sizeof(flightNode));
 	if(newNode == NULL){
 		*errorAdding = 1;
-		freeFlightData(elem);
+        free(elem.clase);
+        free(elem.clasificacion);
+        free(elem.tipo);
+        free(elem.origenOaci);
+        free(elem.destinoOaci);
+        free(elem.nombre);
 		return 1;
 	}
 	*errorAdding = 0;
@@ -156,42 +130,50 @@ int insertFlights(flightsADT flights, char* data, int * errorAdding){
 	fNode aux = flights->first;
 	flights->first = newNode;
 	newNode->next=aux;
-	if(newNode.data->clasificacion!="N/A"){
-		flights->week[dateToDay(newNode.data.fecha)][newNode.data->clasificacion == "Internacional"]+=1;
-		if(newNode.data->clase!="N/A"){
-			flights->composition[getTypeComp(elem)];
+	if(strcmp(newNode->data.clasificacion,"N/A") != 0){
+		flights->week[dateToDay(newNode->data.fecha)][strcmp(newNode->data.clasificacion,"Nacional")+1]+=1;
+		if(strcmp(newNode->data.clase,"N/A") != 0){
+			flights->composition[getTypeComp(elem)]+=1;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 int getTypeComp(flightFormat elem){
 	int aux = 0;
-	if(elem->clasificacion=="Internacional"){
+	if(strcmp(elem.clasificacion,"Internacional") == 0){
 		aux = 3;
 	}
-	if(elem->clase=="Regular"){
+	if(strcmp(elem.clase,"Regular") == 0){
 		return 0+aux;
 	}
-	if(elem->clase=="No Regular"){
+	if(strcmp(elem.clase,"No Regular") == 0){
 		return 1+aux;
 	}
-	if(elem->clase=="Vuelo Privado con Matricula Nacional" || elem->clase=="Vuelo Privado con Matricula Extranjera"){
-	return aux 2+aux;
-	}
+	/*if(strcmp(elem.clase,"Vuelo Privado con Matricula Nacional") == 0 || strcmp(elem.clase,"Vuelo Privado con Matricula Extranjera") == 0){*/
+	return 2+aux;
+	
+    
 }
 
-void freeFlights(flightsADT flights){
-	freeRecFlights(flights->first);
-	free(flights);
-}
 
 static void freeRecFlight(fNode nodo){
 	if(nodo!=NULL){
 		freeRecFlight(nodo->next);
-		freeFlightData(nodo->data);
+        free(nodo->data.clase);
+        free(nodo->data.clasificacion);
+        free(nodo->data.tipo);
+        free(nodo->data.origenOaci);
+        free(nodo->data.destinoOaci);
+        free(nodo->data.nombre);
 		free(nodo);
 	}
+}
+
+
+void freeFlights(flightsADT flights){
+    freeRecFlight(flights->first);
+    free(flights);
 }
 
 void toBeginFlights(flightsADT flights){
