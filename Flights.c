@@ -1,4 +1,7 @@
 #include "Flights.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #define FECHA 0
 #define CLASEDEVUELO 2
@@ -186,7 +189,7 @@ void freeFlights(flightsADT flights){
 static void freeRecFlight(fNode nodo){
 	if(nodo!=NULL){
 		freeRecFlight(nodo->next);
-		freeFlightData(node->data);
+		freeFlightData(nodo->data);
 		free(nodo);
 	}
 }
