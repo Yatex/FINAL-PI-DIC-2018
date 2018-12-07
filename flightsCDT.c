@@ -1,10 +1,3 @@
-//
-//  flights.c
-//  TPFINALPI2018
-//
-//  Created by Igancio Grasso on 04/12/2018.
-//
-
 #include "flightsCDT.h"
 
 #define FECHA 0
@@ -18,10 +11,11 @@
 typedef struct flightNode{
     flightFormat data;
     struct flightNode * next;
-
 }flightNode;
 
 typedef struct flightsCDT{
+    int week[7][2];
+    int composition[6];
     flightNode * first;
     flightNode * iterator;
 }flightsCDT;
@@ -44,9 +38,17 @@ typedef struct flight{
     char *origenOaci
     char *destinoOaci
     char *nombre
-    int diaSemana;
 }flightFormat;
 
+flightsADT newFlights(void){
+  return calloc(1, sizeof(flightsCDT));
+}
+
+fNode newFlight(void){
+  flightNode nodo = calloc(1, sizeof(flightNode));
+  nodo.data = calloc(1, sizeof(flightFormat));
+  return nodo;
+}
 
 void checkOaci(char oaci[]){
     for (int i =0; oaci[i] != NULL; i++) {
@@ -57,19 +59,22 @@ void checkOaci(char oaci[]){
     }
 }
 
-int weekDay(dateType date)
+int
+dateToDay(dateType date)               //returns 0 if date provided is a monday, 1 if tuesday, untill 6 sunday
 {
-    int c, g, d=date.day, m=date.month, y=date.year;
-    static int eLookUpTable[]={0,3,2,5,0,3,5,1,4,6,2,4};
-    static int fLookUpTable[]={0,5,3,1};
-    
-    if(m<3)
-        y--;
-    
-    c=y/CENTURY;
-    g=y-CENTURY*c;
-    
-    return ((int)(d+eLookUpTable[m-1]+fLookUpTable[c%4]+g+(g/4)))%7;
+  int d=date->day, m=date->month, y=date->year, count=0;
+
+  int month[]={31,28,31,30,31,30,31,31,30,31,30,31};
+  for (size_t i = 0; i < m-1; i++)
+    {
+      count+=month[i];
+    }
+  if(y>2016 || (y==2016 && m>2))
+    {
+      count+=1;
+    }
+  count+=((y-2014)*365+d);
+  return (count+1)%7;
 }
 
 char* addIfSpace( char* data, int * spaceError )
@@ -79,9 +84,9 @@ char* addIfSpace( char* data, int * spaceError )
         (*spaceError)=FALSE;
     else
         (*spaceError)=TRUE;
-    
+
     strcpy( aux, data );
-    
+
     return aux;
 }
 
@@ -94,7 +99,6 @@ static void freeFlightData( flightFormat flight )
     free(flight.origenOaci);
     free(flight.destinoOaci);
     free(flight.nombre);
-    free(flight.diaSemana);
 }
 
 
@@ -113,53 +117,53 @@ flightFormat intoFlightFormat(char* data, int *errorAdding){
         i++;
     }
     flightFormat newFlight;
-    
+
     int spaceErro;
-    
+
     (*errorAdding) = FALSE;
-    
+
     char * intoData = dataMatriz[FECHA];
     dateType date;
     date.day = atoi(strtok(intoData,"/"));
     data.month = atoi(strtok(intoData,"/"));
     data.year = atoi(strtok(intoData,"/"));
-    
-    strcpy(newFlight.fecha,date);
-    newFlight.diaSemana = weekDay(newFlight.fecha);
-    
+
+    newFlight.fecha=date;
+
     newFlight.clase = addIfSpace(dataMatriz[CLASEVUELO],&spaceError)
     if(spaceError)
         (*errorAdding) = TRUE;
-    
+
     newFlight.clasificacion = addIfSpace(dataMatriz[CLASIFICACION],&spaceError)
     if(spaceError)
         (*errorAdding) = TRUE;
-    
+
     newFlight.tipo = addIfSpace(dataMatriz[TIPODEMOV],&spaceError)
     if(spaceError)
         (*errorAdding) = TRUE;
-    
+
     newFlight.origenOaci = addIfSpace(dataMatriz[ORIGENOACI],&spaceError)
     if(spaceError)
         (*errorAdding) = TRUE;
-    
+
     checkOaci(dataMatriz[DESTOACI]);
-    
+
     newFlight.destinoOaci = addIfSpace(dataMatriz[DESTOACI],&spaceError)
     if(spaceError)
         (*errorAdding) = TRUE;
-    
+
     newFlight.nombre = addIfSpace(dataMatriz[AERONAME],&spaceError)
     if(spaceError)
         (*errorAdding) = TRUE;
-    
-    
-    return newAirport;
-    
+
+
+    return newFlight;
+
 }
 
 int insertFlights(flightsADT flights, char* data, int * errorAdding){
-    flightFormat elem = intoFlightFormat(data,errorAdding);
+    flightFormat elem = calloc(1,sizeof(flightFormat));
+    elem = intoFlightFormat(data,errorAdding);
     if ((*errorAdding)==TRUE) {
         return TRUE;
     }
@@ -170,24 +174,47 @@ int insertFlights(flightsADT flights, char* data, int * errorAdding){
         return TRUE
     }
     *errorAdding = FALSE;
-    newNode->data = movement;
-    newNode->next = flights->first;
-    flights->>first = newNode;
+    newNode->data = elem;
+    fNode aux = flights->first;
+    flights->first = newNode;
+    newNode->next=aux;
+    if(newNode.data->clasificacion!="N/A"){
+      flights->week[dateToDay(newNode.data.fecha)][newNode.data->clasificacion == "Internacional"]+=1;
+      if(newNode.data->clase!="N/A"){
+        flights->composition[getTypeComp(elem)];
+      }
+    }
     return TRUE;
 }
 
-void freeFlights(flightsADT flights){
-    fNode current = flights->first;
-    fNode aux;
-    
-    while(current != NULL){
-        aux = current->next;
-        free(current);
-        current = aux;
+int getTypeComp(flightFormat elem){
+  int aux = 0;
+  if(elem->clasificacion=="Internacional"){
+    aux = 3;
+  }
+    if(elem->clase=="Regular"){
+      return 0+aux;
     }
+    if(elem->clase=="No Regular"){
+      return 1+aux;
+    }
+    if(elem->clase=="Vuelo Privado con Matricula Nacional" || elem->clase=="Vuelo Privado con Matricula Extranjera"){
+      return aux 2+aux;
+    }
+}
+
+void freeFlights(flightsADT flights){
+    freeRecFlights(flights->first);
     free(flights);
 }
 
+static void freeRecFlight(fNode nodo){
+  if(nodo!=NULL){
+    freeRecFlight(nodo->next);
+    freeFlightData(node->data);
+    free(nodo);
+  }
+}
 
 void toBeginFlights(flightsADT flights){
     flights->iterator = flights->first;
