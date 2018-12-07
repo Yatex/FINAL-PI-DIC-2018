@@ -11,6 +11,8 @@
 #define OACI 1
 #define DENOMINATION 4
 #define PROVINCE 21
+#define DELIM ';'
+#define suc(elem) elem + 1 
 
 typedef struct airportNode* airNode;
 
@@ -30,7 +32,7 @@ int insertAirport(airportADT airports,char* data,int* errorAdding);
 
 void freeAirports(airportADT airports);
 
-airportFormat intoAirportFormat(char* text);
+/*void intoAirportFormat(char* text,airportFormat newAir);*/
 
 void toBeginAirport(airportADT airports);
 
