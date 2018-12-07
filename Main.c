@@ -6,18 +6,6 @@
 #include "Flights.h"
 #include "OpenFiles.h"
 
-int
-dateToDay(dateType date)     //return 0 if its MONDAY, 1 TUESDAY, ... , 6 SUNDAY.
-{
-	int d=date.day, m=date.month, y=date.year, count=0;
-	int month[]={31,28,31,30,31,30,31,31,30,31,30,31};
-	for (size_t i = 0; i < m-1; i++)
-		count+=month[i];
-	if(y>2016 || (y==2016 && m>2))
-		count+=1;
-	count+=((y-2014)*365+d);
-	return (count+1)%7;
-}
 
 void
 freeAll(airportADT aeros, flightsADT vuelos){
@@ -26,29 +14,46 @@ freeAll(airportADT aeros, flightsADT vuelos){
 	return;
 }
 
-int
-QuerryUNO(airNode a, fNode f){
-	FILE * querry;
-	querry=fopen("movimientos_aeropuerto.csv","wt");
-	if (querry == NULL)
-		return 1;
-	while(a != NULL){
-		int mov = 0;
-		while(f != NULL){
-			if(strcmp(a->data.oaci , f->data.origenOaci)==0 || strcmp(a->data.oaci , f->data.destinoOaci))
-				mov += 1;
-			f = f->next;
-		}
-		fputs(a->data.oaci , querry);
-		fputs(";" , querry);
-		fputs(a->data.denomination , querry);
-		fputs(";" , querry);
-		fprintf(querry , "%d\n" , mov);
-		a = a -> next;
-	}
-	fclose(querry);
-	return 0;
+
+int QuerryUNO(airportADT aerop, flightsADT vuelos)
+{
+    int movs=0;
+    FILE * archivo = fopen("movs_aeropuerto.csv", "w");
+    if(archivo == NULL){
+        printf("Error generando fichero en query 1...\n");
+        return 0 ;
+    }
+    toBeginAirport(aerop);
+    
+    while( hasNextAirport(aerop) )
+    {
+        airportFormat auxAirport= nextAirport(aerop);
+        
+        toBeginFlights(vuelos);
+        
+        while( hasNextFlight(vuelos) )
+        {
+            flightFormat auxFlight = nextFlight(vuelos);
+            
+            if( ( (strcmp(auxFlight.origenOaci, auxAirport.oaci)) == 0 ) || ((strcmp(auxFlight.destinoOaci, auxAirport.oaci)) == 0 ))
+            {
+                movs++;
+            }
+            
+        }
+        
+        if(movs != 0 )
+        {
+            fprintf(archivo, "%s;%s;%d \n", auxAirport.oaci,auxAirport.denomination,movs);
+        }
+        
+    }
+    
+    
+    fclose(archivo);
+    return 1;
 }
+
 
 int
 QuerryDOS(flightsADT f){
@@ -57,6 +62,15 @@ QuerryDOS(flightsADT f){
 	querry=fopen("dia_semana.csv","wt");
 	if (querry == NULL)
 		return 1;
+    
+    /*int aux[7][2];
+    for (int i=0; i<7; i++) {
+        for (int j=0; j<2; j++) {
+            aux[i][j] = f->week[i][j];
+        }
+    }
+     */
+     
 	for(int i=0; i<7; i++){
 		fprintf(querry, "%s;%d;%d;%d \n", vec[i], f->week[i][0], f->week[i][1], (f->week[i][0] + f->week[i][1]));
 	}
@@ -100,8 +114,8 @@ main(void)
 		}
 		return 1;
 	}
-	if((aeros->first != NULL) && (vuelos ->first != NULL)){
-		if (QuerryUNO(aeros->first, vuelos->first))
+	if((aeros != NULL) && (vuelos != NULL)){
+		if (QuerryUNO(aeros, vuelos))
 			printf("The file movimientos_aeropuerto.csv has been created succesfully\n");
 		else
 			printf("The file movimientos_aeropuerto.csv could not be created due to a lack of memory\n");
