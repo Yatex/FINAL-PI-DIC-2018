@@ -1,5 +1,7 @@
 #include "Airport.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define MAX_CAMPOS 3
 #define MAX_SIZE 150
