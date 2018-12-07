@@ -1,25 +1,24 @@
 #include "Flights.h"
 
 
+typedef struct flightNode{
+    flightFormat data;
+    fNode next;
+}flightNode;
 
 
 
 
 flightsADT newFlights(void){
-	return calloc(1, sizeof(flightsCDT));
+	flightsADT newFli = calloc(1, sizeof(flightsCDT));
+    return newFli;
     
 }
 
-/*flightFormat newFlight(void){
-	flightNode nodo = calloc(1, sizeof(flightNode));
-	nodo.data = calloc(1, sizeof(flightFormat));
-	return nodo;
-}
-*/
 
 void checkOaci(char oaci[]){
-	for (int i =0; oaci[i] != '\0'; i++) {
-		if (isdigit(oaci[i]) || i > MAX_OACI) {
+	for (int i=0; oaci[i] != '\0'; i++) {
+		if (isdigit(oaci[i]) || i >= MAX_OACI) {
 			strcpy(oaci,"N/A");
 			return;
 		}
@@ -40,51 +39,65 @@ dateToDay(dateType date) //returns 0 if date provided is a monday, 1 if tuesday,
 	count+=((y-2014)*365+d);
 	return (count+1)%7;
 }
-
+/*
 char* addIfSpace( char* data, int * spaceError )
 {
-	char* aux = malloc( strlen( data ) + 1 );
+	char* aux = malloc(strlen(data)+ 1);
 	if(aux == NULL)
 		(*spaceError)=0;
-	else
+    else{
 		(*spaceError)=1;
-	strcpy( aux, data );
+        strcpy(aux,data);
+    }
 	return aux;
 }
-
-/*static void freeFlightData( flightFormat flight )
-
-	free(flight.clase);
-	free(flight.clasificacion);
-	free(flight.tipo);
-	free(flight.origenOaci);
-	free(flight.destinoOaci);
-	free(flight.nombre);
+*/
+/*
+void freeFlightData(flightFormat elem){
+    free(elem.clase);
+    free(elem.clasificacion);
+    free(elem.tipo);
+    free(elem.origenOaci);
+    free(elem.destinoOaci);
+    free(elem.nombre);
 }
- */
+*/
 
-flightFormat intoFlightFormat(char* data, int *errorAdding){
+flightFormat intoFlightFormat(char * data, int * errorAdding){
 	char dataMatriz[MAX_CAMPOS_F][MAX_SIZE_F];
 	int i=0;
 	int j=0;
 	char* token = strtok(data,";");
-	while(token != NULL){
-		if (i==FECHA || i==CLASEDEVUELO || i==CLASIFICACION || i==TIPODEMOV || i==ORIGENOACI || i==DESTOACI || i==AERONAME) {
+	while(token != NULL || i < 10){
+		if (i==FECHA || i==CLASEDEVUELO || i==CLASIFICACION || i==TIPODEMOV || i==ORIGENOACI || i==DESTOACI || i==AERONAME)
+        {
 			strcpy(dataMatriz[j],token);
 			j++;
 		}
 		token = strtok(NULL,";");
 		i++;
 	}
-    flightFormat newFlight; /*= newFlight(void);*/
-	int spaceError;
-	(*errorAdding) = 0;
-	char * intoData = dataMatriz[FECHA];
+    
+    flightFormat newFlight;
+	
+    char * intoData = NULL;
+    strncpy(intoData,dataMatriz[0],MAX_FECHA);
 	dateType date;
 	date.day = atoi(strtok(intoData,"/"));
-	date.month = atoi(strtok(intoData,"/"));
-	date.year = atoi(strtok(intoData,"/"));
-	newFlight.fecha=date;
+	date.month = atoi(strtok(NULL,"/"));
+	date.year = atoi(strtok(NULL,"/"));
+    newFlight.fecha=date;
+    
+    strncpy(newFlight.clase,dataMatriz[1],CLASEVUELO);
+    strncpy(newFlight.clasificacion,dataMatriz[2],CLASIFVUELO);
+    strncpy(newFlight.tipo,dataMatriz[3],TIPOVUELO);
+    strncpy(newFlight.origenOaci,dataMatriz[4],MAX_OACI);
+    strncpy(newFlight.destinoOaci,dataMatriz[5],MAX_OACI);
+    strncpy(newFlight.nombre,dataMatriz[6],MAXNAME);
+    /*
+     int spaceError;
+     (*errorAdding) = 0;
+    
 	newFlight.clase = addIfSpace(dataMatriz[1],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
@@ -104,32 +117,27 @@ flightFormat intoFlightFormat(char* data, int *errorAdding){
 	newFlight.nombre = addIfSpace(dataMatriz[6],&spaceError);
 	if(spaceError)
 		(*errorAdding) = 1;
+     */
     
 	return newFlight;
 }
 
-int insertFlight(flightsADT flights, char* data, int * errorAdding){
-	flightFormat elem /*= calloc(1,sizeof(flightFormat))*/;
-	elem = intoFlightFormat(data,errorAdding);
+int insertFlight(flightsADT flights, char* data, int* errorAdding){
+	flightFormat elem = intoFlightFormat(data,errorAdding);
 	if ((*errorAdding)==1) {
 		return 1;
 	}
 	fNode newNode = malloc(sizeof(flightNode));
 	if(newNode == NULL){
 		*errorAdding = 1;
-        free(elem.clase);
-        free(elem.clasificacion);
-        free(elem.tipo);
-        free(elem.origenOaci);
-        free(elem.destinoOaci);
-        free(elem.nombre);
+        /*freeFlightData(elem);*/
 		return 1;
 	}
 	*errorAdding = 0;
 	newNode->data = elem;
-	fNode aux = flights->first;
-	flights->first = newNode;
-	newNode->next=aux;
+    newNode->next = flights->first;
+    flights->first = newNode;
+	
 	if(strcmp(newNode->data.clasificacion,"N/A") != 0){
 		flights->week[dateToDay(newNode->data.fecha)][strcmp(newNode->data.clasificacion,"Nacional")+1]+=1;
 		if(strcmp(newNode->data.clase,"N/A") != 0){
@@ -157,22 +165,19 @@ int getTypeComp(flightFormat elem){
 }
 
 
-static void freeRecFlight(fNode nodo){
-	if(nodo!=NULL){
-		freeRecFlight(nodo->next);
-        free(nodo->data.clase);
-        free(nodo->data.clasificacion);
-        free(nodo->data.tipo);
-        free(nodo->data.origenOaci);
-        free(nodo->data.destinoOaci);
-        free(nodo->data.nombre);
-		free(nodo);
-	}
-}
-
-
-void freeFlights(flightsADT flights){
-    freeRecFlight(flights->first);
+void freeFlights(flightsADT flights)
+{
+    toBeginFlights(flights);
+    fNode aux;
+    flightFormat dataAux;
+    
+    while(hasNextFlight(flights))
+    {
+        aux = flights->iterator;
+        dataAux = nextFlight(flights);
+        /*freeFlightData(dataAux);*/
+        free(aux);
+    }
     free(flights);
 }
 
