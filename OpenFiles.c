@@ -1,72 +1,46 @@
-//
-//  OpenFiles.c
-//  TPFINALPI2018
-//
-//  Created by Igancio Grasso on 04/12/2018.
-//
-
 #include "OpenFiles.h"
+#include "Flights.h"
+#include "Airport.h"
 
-airportADT fillAirports(chat* filename){
-    FILE *fp = fopen(filename,"r");
-    if (!fp) {
-        Error(filename);
-    }
-    
-    int errorAdding;
-    airportAdt airports = newAirport();
-    
-    if (!airports) {
-        fprintf(stderr,"ERROR CREANDO LA LISTA");
-        return;
-    }
-    
-    char* allData[MAX_LENGHT];
-    fgets(allData,MAX_LENGHT,fp);
-    int errorFound=0;
-    
-    while(fgets(allData,MAX_LENGHT,fp)){
-        if (insertAirport(airports,allData,&errorAdding) && errorAdding == 0) {
-            errorFound++;
-        }
-    }
-    if (errorFound) {
-        fprintf(stderr,"ERROR COPIANDO");
-    }
-    
-    fclose(fp);
-    return airports;
-    
+airportADT fillAirports(char* filename,int* error){
+	FILE *fp = fopen(filename,"rt");
+	airportADT airports = newAirport();
+	if (!airports) {
+		*error=2;  //ERROR 2 ERROR CREATING LIST
+		return;
+	}
+	char* allData[MAX_LENGHT];
+	fgets(allData,MAX_LENGHT,fp);
+	while(fgets(allData,MAX_LENGHT,fp)){
+		if (insertAirport(airports,allData,&error) && error != 0) {
+			*error=3; //ERROR 3 ERROR COPYING
+		}
+	}
+	if (error>0) {
+		*error=3;  //ERROR 3 ERROR COPYING
+	}
+	fclose(fp);
+	return airports;
 }
 
-airportADT fillAirports(chat* filename){
-    FILE *fp = fopen(filename,"r");
-    if (!fp) {
-        Error(filename);
-    }
-    
-    int errorAdding;
-    flightsADT flights = newFlights()
-    
-    if (!flights) {
-        fprintf(stderr,"ERROR CREANDO LA LISTA");
-        return;
-    }
-    
-    char* allData[MAX_LENGHT];
-    fgets(allData,MAX_LENGHT,fp);
-    int errorFound=0;
-    
-    while(fgets(allData,MAX_LENGHT,fp)){
-        if (insertAirport(flights,allData,&errorAdding) && errorAdding != 0) {
-            errorFound++;
-        }
-    }
-    if (errorFound) {
-        fprintf(stderr,"ERROR COPIANDO");
-    }
-    
-    fclose(fp);
-    return flights;
-    
+flightsADT fillFlights(char* filename, int* error){
+	FILE *fp = fopen(filename,"rt");
+	flightsADT flights = newFlights();
+	if (!flights) {
+		*error=2; //ERROR 2 ERROR CREATING LIST
+		return;
+	}
+	char* allData[MAX_LENGHT];
+	fgets(allData,MAX_LENGHT,fp);
+	int errorFound=0;
+	while(fgets(allData,MAX_LENGHT,fp)){
+		if (insertFlights(flights,allData,&errorAdding) && errorAdding != 0) {
+			*error=3;  //ERROR 3 ERROR COPYING
+		}
+	}
+	if (errorFound) {
+		*error=3;//ERROR 3 ERROR COPYING
+	}
+	fclose(fp);
+	return flights;
 }
