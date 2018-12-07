@@ -1,22 +1,26 @@
 #include "OpenFiles.h"
 #include "Flights.h"
 #include "Airport.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX_LENGTH 150
 
 airportADT fillAirports(char* filename,int* error){
 	FILE *fp = fopen(filename,"rt");
 	airportADT airports = newAirport();
 	if (!airports) {
 		*error=2;  //ERROR 2 ERROR CREATING LIST
-		return;
+		return NULL;
 	}
-	char* allData[MAX_LENGHT];
-	fgets(allData,MAX_LENGHT,fp);
-	while(fgets(allData,MAX_LENGHT,fp)){
-		if (insertAirport(airports,allData,&error) && error != 0) {
+	char allData[MAX_LENGTH];
+	fgets(allData,MAX_LENGTH,fp);
+	while(fgets(allData,MAX_LENGTH,fp)){
+		if (insertAirport(airports,allData,&error) && *error != 0) {
 			*error=3; //ERROR 3 ERROR COPYING
 		}
 	}
-	if (error>0) {
+	if (*error>0) {
 		*error=3;  //ERROR 3 ERROR COPYING
 	}
 	fclose(fp);
@@ -28,17 +32,16 @@ flightsADT fillFlights(char* filename, int* error){
 	flightsADT flights = newFlights();
 	if (!flights) {
 		*error=2; //ERROR 2 ERROR CREATING LIST
-		return;
+		return NULL;
 	}
-	char* allData[MAX_LENGHT];
-	fgets(allData,MAX_LENGHT,fp);
-	int errorFound=0;
-	while(fgets(allData,MAX_LENGHT,fp)){
-		if (insertFlights(flights,allData,&errorAdding) && errorAdding != 0) {
+	char allData[MAX_LENGTH];
+	fgets(allData,MAX_LENGTH,fp);
+	while(fgets(allData,MAX_LENGTH,fp)){
+		if (insertFlight(flights,allData,&error) && *error != 0){
 			*error=3;  //ERROR 3 ERROR COPYING
 		}
 	}
-	if (errorFound) {
+	if (*error!=0) {
 		*error=3;//ERROR 3 ERROR COPYING
 	}
 	fclose(fp);
