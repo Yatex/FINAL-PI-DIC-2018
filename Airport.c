@@ -3,25 +3,31 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_CAMPOS 3
-#define MAX_SIZE 150
-#define FALSE 0
-#define TRUE !FALSE
-#define OACI 1
-#define DENOMINATION 4
-#define PROVINCE 21
+
+typedef struct airportNode{
+    airportFormat data;
+    airNode next;
+}airportNode;
+
+typedef struct airportCDT{
+    airNode first;
+    airNode iterator;
+}airportCDT;
+
 
 airportADT newAirport(){
 	return calloc(1,sizeof(airportCDT));
 }
 
-airportFormat newAirportFormat(void){
-	return calloc(1, sizeof(airportFormat));
-}
+/*airportFormat newAirportFormat(){
+    return calloc(1, sizeof(formNode));
+
+ }
+ */
 
 static airNode insertAirportRec(airNode first, airportFormat elem, int* errorAdding){
-	int result;
-	if (first == NULL || (result == strcmp(first.data.oaci,elem.oaci)) > 0) {
+	int result=0;
+	if (first == NULL || (result == strcmp(first->data.oaci,elem.oaci)) > 0) {
 		airNode newNode = malloc(sizeof(airportNode));
 		if (newNode == NULL) {
 			(*errorAdding)=1;
@@ -49,14 +55,14 @@ airportFormat intoAirportFormat(char * data){
 		token = strtok(NULL,";");
 		i++;
 	}
-	airportFormat newAirport = newAirportFormat(void);
+    airportFormat newAirport; /*= newAirportFormat();*/
 	strcpy(newAirport.oaci,dataMatriz[0]);
 	strcpy(newAirport.denomination,dataMatriz[1]);
 	strcpy(newAirport.province,dataMatriz[2]);
 	return newAirport;   
 }
 
-int insertAirport(airportADT airports, char * data, int * errorAdding){
+int insertAirport(airportADT airports, char * data, int* errorAdding){
 	airportFormat elem = intoAirportFormat(data);
 	if (*(elem.oaci)!= 0) {
 		airports->first = insertAirportRec(airports->first,elem, errorAdding);
@@ -67,7 +73,7 @@ int insertAirport(airportADT airports, char * data, int * errorAdding){
 
 void freeAirports(airportADT airports){
 	airNode current = airports->first;
-	airnode aux;
+	airNode aux;
 	while(current != NULL){
 		aux = current->next;
 		free(current);
