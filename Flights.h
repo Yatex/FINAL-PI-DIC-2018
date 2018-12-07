@@ -41,7 +41,7 @@ void checkOaci(char oaci[]);
 
 int dateToDay(dateType date);
 
-void insertFlight(flightsADT flights, flightFormat movement, int *errorAdding);
+void insertFlight(flightsADT flights, char* movement, int errorAdding);
 
 void freeFlights(flightsADT flights);
 
