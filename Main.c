@@ -63,14 +63,6 @@ QuerryDOS(flightsADT f){
 	if (querry == NULL)
 		return 1;
     
-    /*int aux[7][2];
-    for (int i=0; i<7; i++) {
-        for (int j=0; j<2; j++) {
-            aux[i][j] = f->week[i][j];
-        }
-    }
-     */
-     
 	for(int i=0; i<7; i++){
 		fprintf(querry, "%s;%d;%d;%d \n", vec[i], f->week[i][0], f->week[i][1], (f->week[i][0] + f->week[i][1]));
 	}
@@ -85,7 +77,7 @@ QuerryTRES(flightsADT f){
 	querry=fopen("dia_semana.csv","wt");
 	if (querry == NULL)
 		return 1;
-	for(int i=0; i<7; i++){
+	for(int i=0; i<6; i++){
 		fprintf(querry, "%s ; %d \n", vec[i], f->composition[i]);
 	}
 	fclose(querry);
@@ -131,4 +123,5 @@ main(void)
 	}
 	return 0;
 }
+
 
