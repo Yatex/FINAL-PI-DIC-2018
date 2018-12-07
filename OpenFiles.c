@@ -16,7 +16,7 @@ airportADT fillAirports(char* filename,int* error){
 	char allData[MAX_LENGTH];
 	fgets(allData,MAX_LENGTH,fp);
 	while(fgets(allData,MAX_LENGTH,fp)){
-		if (insertAirport(airports,allData,&error) && *error != 0) {
+		if (insertAirport(airports,allData,error) && error != 0) {
 			*error=3; //ERROR 3 ERROR COPYING
 		}
 	}
@@ -37,7 +37,7 @@ flightsADT fillFlights(char* filename, int* error){
 	char allData[MAX_LENGTH];
 	fgets(allData,MAX_LENGTH,fp);
 	while(fgets(allData,MAX_LENGTH,fp)){
-		if (insertFlight(flights,allData,&error) && *error != 0){
+		if (insertFlight(flights,allData,error) && error != 0){
 			*error=3;  //ERROR 3 ERROR COPYING
 		}
 	}
@@ -47,3 +47,4 @@ flightsADT fillFlights(char* filename, int* error){
 	fclose(fp);
 	return flights;
 }
+
